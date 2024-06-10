@@ -1,0 +1,18 @@
+# db-specific configuration
+- name: Ensure the directory /rannasta-suomeen/frontend exists
+  ansible.builtin.file:
+    path: /home/{{user}}/rannasta-suomeen/frontend
+    state: directory
+    recurse: yes
+
+- name: Generate .env file
+  template:
+    src: files/rs-frontend-env.j2
+    dest: /home/{{user}}/rannasta-suomeen/frontend/.env
+
+
+# create systemd service from docker image
+- name: Initialize frontend service
+  include_tasks: ./tasks/deploy-image.yml
+  vars:
+    - template: rs-frontend-service.j2

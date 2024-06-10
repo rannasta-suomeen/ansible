@@ -1,0 +1,23 @@
+[Unit]
+Description=Rannasta Suomeen Database Service
+After=docker.service
+Requires=docker.service
+After=docker.rs-db.service
+Requires=docker.rs-db.service
+ 
+[Service]
+User={{ user }}
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker stop rs-db
+ExecStartPre=-/usr/bin/docker rm rs-db
+ExecStartPre=/usr/bin/docker pull {{ image }}
+ExecStart=/usr/bin/docker run -p {{ port }}:5432     \
+    --name rs-db \
+    -e POSTGRES_PASSWORD="{{ pg_password }}" \
+    -e POSTGRES_DB=rannasta_suomeen \
+    --mount type=bind,source=/home/{{user}}/rannasta-suomeen/db/pg-data,target=/var/lib/postgresql/data \
+{{ image }}
+
+[Install]
+WantedBy=multi-user.target

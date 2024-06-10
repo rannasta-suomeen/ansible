@@ -1,0 +1,12 @@
+# db-specific configuration
+- name: Ensure the directory /rannasta-suomeen/db/pg-data exists
+  ansible.builtin.file:
+    path: /home/{{user}}/rannasta-suomeen/db/pg-data
+    state: directory
+    recurse: yes
+
+# create systemd service from docker image
+- name: Initialize db service
+  include_tasks: ./tasks/deploy-image.yml
+  vars:
+    - template: rs-db-service.j2

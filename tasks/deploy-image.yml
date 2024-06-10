@@ -1,0 +1,30 @@
+- name: Authenticate docker registry
+  shell: echo {{ cr_pat }} | docker login ghcr.io -u USERNAME --password-stdin
+
+- name: Pull image
+  shell: docker pull {{ image }}
+
+- name: Generate systemctl service file
+  template:
+    src: files/{{ template }}
+    dest: /tmp/{{ service_name }}.service
+
+- name: Apply systemctl service file
+  become: true
+  become_user: root
+  shell: mv /tmp/{{ service_name }}.service /etc/systemd/system/{{ service_name }}.service
+
+- name: Reload systemd daemon
+  become: true
+  become_user: root
+  shell: systemctl daemon-reload
+
+- name: Stop the current service
+  become: true
+  become_user: root
+  shell: systemctl stop {{ service_name }}
+
+- name: Start the service
+  become: true
+  become_user: root
+  shell: systemctl start {{ service_name }}

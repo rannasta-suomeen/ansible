@@ -1,0 +1,20 @@
+- name: Deploy rannasta-suomeen
+  hosts: server_main
+  vars_files:
+    - vault/vault.yml
+  become_user: "{{user}}"
+  become: true
+  tasks:
+    - name: Deploy db
+      include_tasks: ./tasks/deploy-db.yml
+      vars:
+        - image: ghcr.io/rannasta-suomeen/db:0.0.3
+        - service_name: docker.rs-db
+        - port: 5432
+
+    - name: Deploy frontend
+      include_tasks: ./tasks/deploy-frontend.yml
+      vars:
+        - image: ghcr.io/rannasta-suomeen/ssr-frontend:0.0.1
+        - service_name: docker.rs-frontend
+        - port: 3030
