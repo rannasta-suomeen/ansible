@@ -8,13 +8,15 @@
     - name: Deploy db
       include_tasks: ./tasks/deploy-db.yml
       vars:
-        - image: ghcr.io/rannasta-suomeen/db:0.0.3
+        - image: ghcr.io/rannasta-suomeen/rannasta-suomeen-sdk:release
         - service_name: docker.rs-db
         - port: 5432
 
     - name: Deploy frontend
       include_tasks: ./tasks/deploy-frontend.yml
       vars:
-        - image: ghcr.io/rannasta-suomeen/ssr-frontend:0.0.1
+        - image: ghcr.io/rannasta-suomeen/rannasta-suomeen-rs:release
         - service_name: docker.rs-frontend
         - port: 3030
+
+        # sha256:af79128118708aa80e6b4d2a0c3779a7f3ee01bbdaa4ae7f1a3f16ebab6729f9
