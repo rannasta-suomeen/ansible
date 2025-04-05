@@ -1,7 +1,7 @@
 # db-specific configuration
-- name: Ensure the directory /rannasta-suomeen/frontend exists
+- name: Ensure the directory /rannasta-suomeen/frontend/dist exists
   ansible.builtin.file:
-    path: /home/{{user}}/rannasta-suomeen/frontend
+    path: /home/{{user}}/rannasta-suomeen/frontend/dist
     state: directory
     recurse: yes
 
@@ -9,6 +9,23 @@
   template:
     src: files/rs-frontend-env.j2
     dest: /home/{{user}}/rannasta-suomeen/frontend/.env
+
+- name: Stop the redis service
+  become: true
+  become_user: root
+  shell: docker stop rs-redis
+  ignore_errors: true # Allow error in case container does not exists
+
+- name: Remove the redis container
+  become: true
+  become_user: root
+  shell: docker rm rs-redis
+  ignore_errors: true # Allow error in case container does not exists
+
+- name: Start redis service
+  become: true
+  become_user: root
+  shell: docker run --name rs-redis --network="host" -d redis redis-server --save 60 1 --loglevel warning
 
 
 # create systemd service from docker image

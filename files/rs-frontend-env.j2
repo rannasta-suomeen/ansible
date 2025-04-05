@@ -1,4 +1,7 @@
 POSTGRES_URL=postgres://postgres:{{ pg_password }}@127.0.0.1/rannasta_suomeen
 POTION_ROUTING_DIR=/frontend/src/routing
 POTION_PROJECT_DIR=/frontend/src
+API_KEY={{ api_key }}
+API_URL="http://localhost:3040/api"
+RUST_LOG="error,warn,info,swc_ecma_codegen=off,tracing=off"
 VERSION_LABEL="Latest build ({{ image }})"

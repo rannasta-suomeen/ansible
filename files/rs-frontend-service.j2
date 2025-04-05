@@ -8,13 +8,14 @@ Requires=docker.rs-frontend.service
 [Service]
 User={{ user }}
 TimeoutStartSec=0
-Restart=always
-ExecStartPre=/usr/bin/docker stop rs-frontend
-ExecStartPre=/usr/bin/docker rm rs-frontend
+
+# ExecStartPre=/usr/bin/docker stop rs-frontend
+# ExecStartPre=/usr/bin/docker rm rs-frontend
 ExecStartPre=/usr/bin/docker pull {{ image }}
 ExecStart=/usr/bin/docker run -p {{ port }}:3030 \
-    --name rs-frontend \
+    --name {{ docker_name }} \
     --mount type=bind,source=/home/{{user}}/rannasta-suomeen/frontend/.env,target=/.env \
+    --mount type=bind,source=/home/{{user}}/rannasta-suomeen/frontend/dist,target=/frontend/dist \
     --network="host" \
 {{ image }}
 

@@ -1,0 +1,18 @@
+# db-specific configuration
+- name: Ensure the directory /rannasta-suomeen/rsm-server/dist exists
+  ansible.builtin.file:
+    path: /home/{{user}}/rannasta-suomeen/rsm-server/dist
+    state: directory
+    recurse: yes
+
+- name: Generate .env file
+  template:
+    src: files/rsm-server-env.j2
+    dest: /home/{{user}}/rannasta-suomeen/rsm-server/.env
+
+
+# create systemd service from docker image
+- name: Initialize rsm service
+  include_tasks: ./tasks/deploy-image.yml
+  vars:
+    - template: rsm-server-service.j2

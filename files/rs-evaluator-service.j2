@@ -1,0 +1,22 @@
+[Unit]
+Description=Rannasta Suomeen Frontend Service
+After=docker.service
+Requires=docker.service
+After=docker.rs-evaluator.service
+Requires=docker.rs-evaluator.service
+ 
+[Service]
+User={{ user }}
+TimeoutStartSec=0
+
+# ExecStartPre=/usr/bin/docker stop rs-evaluator
+# ExecStartPre=/usr/bin/docker rm rs-evaluator
+ExecStartPre=/usr/bin/docker pull {{ image }}
+ExecStart=/usr/bin/docker run -p {{ port }}:3040 \
+    --name {{ docker_name }} \
+    --mount type=bind,source=/home/{{user}}/rannasta-suomeen/evaluator/.env,target=/.env \
+    --network="host" \
+{{ image }}
+
+[Install]
+WantedBy=multi-user.target

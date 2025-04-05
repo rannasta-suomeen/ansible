@@ -1,0 +1,9 @@
+[Unit]
+Description="Run Superalko parser every 12h relative to the activation time"
+
+[Timer]
+OnUnitActiveSec=12h
+Unit=docker.s-parser.service
+
+[Install]
+WantedBy=multi-user.target

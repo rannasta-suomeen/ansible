@@ -1,0 +1,19 @@
+[Unit]
+Description=Alko parser
+After=docker.service
+Requires=docker.service
+After=docker.a-parser.service
+Requires=docker.a-parser.service
+ 
+[Service]
+User={{ user }}
+
+# ExecStartPre=/usr/bin/docker stop a-parser
+# ExecStartPre=/usr/bin/docker rm a-parser
+ExecStart=/usr/bin/docker run \
+    -e PSQL_URI=postgres://postgres:{{ pg_password }}@127.0.0.1/rannasta_suomeen \
+    --network="host" \
+{{ image }}
+
+[Install]
+WantedBy=multi-user.target

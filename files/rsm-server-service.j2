@@ -1,0 +1,22 @@
+[Unit]
+Description=Rannasta Suomeen Mobile Server
+After=docker.service
+Requires=docker.service
+After=docker.rsm-server.service
+Requires=docker.rsm-server.service
+ 
+[Service]
+User={{ user }}
+TimeoutStartSec=0
+
+# ExecStartPre=/usr/bin/docker stop rsm-server
+# ExecStartPre=/usr/bin/docker rm rsm-server
+ExecStartPre=/usr/bin/docker pull {{ image }}
+ExecStart=/usr/bin/docker run -p {{ port }}:8000 \
+    --name {{ docker_name }} \
+    --mount type=bind,source=/home/{{user}}/rannasta-suomeen/rsm-server/.env,target=/.env \
+    --network="host" \
+{{ image }}
+
+[Install]
+WantedBy=multi-user.target

@@ -24,7 +24,37 @@
   become_user: root
   shell: systemctl stop {{ service_name }}
 
+- name: Stop the docker container
+  become: true
+  become_user: root
+  shell: docker stop {{ docker_name }}
+  ignore_errors: true # Allow error in case container does not exists
+
+- name: Remove the docker container
+  become: true
+  become_user: root
+  shell: docker rm {{ docker_name }}
+  ignore_errors: true # Allow error in case container does not exists
+
 - name: Start the service
   become: true
   become_user: root
   shell: systemctl start {{ service_name }}
+
+- name: Get Service Status
+  ansible.builtin.systemd:
+    name: "{{ service_name }}"
+  register: "tmp_status"
+
+- debug:
+    var: tmp_status.status.ActiveState
+
+
+- block:
+  - name: Get service journalctl
+    shell: journalctl -eu {{ service_name }}
+    register: tmp_journal
+  - debug:
+      var: tmp_journal.stdout_lines
+  when:
+    tmp_status.status.ActiveState != "active"

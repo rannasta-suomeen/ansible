@@ -1,0 +1,16 @@
+- name: Ensure the directory /rannasta-suomeen/cdn
+  ansible.builtin.file:
+    path: /home/{{user}}/rannasta-suomeen/cdn
+    state: directory
+    recurse: yes
+
+- name: Generate .env file
+  template:
+    src: files/rs-cdn-env.j2
+    dest: /home/{{user}}/rannasta-suomeen/cdn/.env
+
+
+- name: Initialize cdn service
+  include_tasks: ./tasks/deploy-image.yml
+  vars:
+    - template: rs-cdn-service.j2

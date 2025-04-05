@@ -1,0 +1,21 @@
+[Unit]
+Description=Rannasta Suomeen CDN
+After=docker.service
+Requires=docker.service
+After=docker.rs-cdn-server.service
+Requires=docker.rs-cdn-server.service
+ 
+[Service]
+User={{ user }}
+TimeoutStartSec=0
+
+ExecStartPre=/usr/bin/docker pull {{ image }}
+ExecStart=/usr/bin/docker run \
+    --name {{ docker_name }} \
+    --mount type=bind,source=/home/{{user}}/rannasta-suomeen/cdn/.env,target=/.env \
+    --mount type=bind,source=/mnt,target=/mnt \
+    --network="host" \
+{{ image }}
+
+[Install]
+WantedBy=multi-user.target

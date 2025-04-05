@@ -1,0 +1,18 @@
+# db-specific configuration
+- name: Ensure the directory /rannasta-suomeen/evaluator
+  ansible.builtin.file:
+    path: /home/{{user}}/rannasta-suomeen/evaluator
+    state: directory
+    recurse: yes
+
+- name: Generate .env file
+  template:
+    src: files/rs-evaluator-env.j2
+    dest: /home/{{user}}/rannasta-suomeen/evaluator/.env
+
+
+# create systemd service from docker image
+- name: Initialize evaluator service
+  include_tasks: ./tasks/deploy-image.yml
+  vars:
+    - template: rs-evaluator-service.j2

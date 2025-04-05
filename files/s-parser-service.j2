@@ -1,0 +1,19 @@
+[Unit]
+Description=Superalko parser
+After=docker.service
+Requires=docker.service
+After=docker.s-parser.service
+Requires=docker.s-parser.service
+ 
+[Service]
+User={{ user }}
+TimeoutStartSec=0
+# ExecStartPre=/usr/bin/docker stop s-parser
+# ExecStartPre=/usr/bin/docker rm s-parser
+ExecStart=/usr/bin/docker run \
+    --mount type=bind,source=/home/{{user}}/rannasta-suomeen/s-parser/.env,target=/app/.env \
+    --network="host" \
+{{ image }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,44 @@
+# db-specific configuration
+- name: Ensure the directory /rannasta-suomeen/s-parser exists
+  ansible.builtin.file:
+    path: /home/{{user}}/rannasta-suomeen/s-parser
+    state: directory
+    recurse: yes
+
+- name: Generate .env file
+  template:
+    src: files/s-parser-env.j2
+    dest: /home/{{user}}/rannasta-suomeen/s-parser/.env
+
+
+# create systemd service from docker image
+- name: Initialize parser service
+  include_tasks: ./tasks/deploy-image.yml
+  vars:
+    - template: s-parser-service.j2
+
+# generate timer file for the parser
+- name: Generate systemctl timer file
+  template:
+    src: files/s-parser-timer.j2
+    dest: /tmp/{{ service_name }}.timer
+
+- name: Apply systemctl timer file
+  become: true
+  become_user: root
+  shell: mv /tmp/{{ service_name }}.timer /etc/systemd/system/{{ service_name }}.timer
+
+- name: Reload systemd daemon
+  become: true
+  become_user: root
+  shell: systemctl daemon-reload
+
+- name: Start timer
+  become: true
+  become_user: root
+  shell: systemctl start {{ service_name }}.timer
+
+- name: Enable timer
+  become: true
+  become_user: root
+  shell: systemctl enable {{ service_name }}.timer

@@ -1,22 +1,91 @@
 - name: Deploy rannasta-suomeen
-  hosts: server_main
+  hosts: deployment
   vars_files:
     - vault/vault.yml
   become_user: "{{user}}"
   become: true
   tasks:
+    - name: Deploy frontend
+      import_tasks: ./tasks/deploy-frontend.yml
+      vars:
+        - image: ghcr.io/rannasta-suomeen/rannasta-suomeen-rs:release
+        - service_name: docker.rs-frontend
+        - docker_name: rs-frontend
+        - port: 3030
+      tags:
+        - frontend
+        - init
+        - never
+
     - name: Deploy db
-      include_tasks: ./tasks/deploy-db.yml
+      import_tasks: ./tasks/deploy-db.yml
       vars:
         - image: ghcr.io/rannasta-suomeen/rannasta-suomeen-sdk:release
         - service_name: docker.rs-db
         - port: 5432
-
-    - name: Deploy frontend
-      include_tasks: ./tasks/deploy-frontend.yml
+        - docker_name: rs-db
+      tags:
+        - db
+        - init
+        - never
+        
+    - name: Deploy rs-evaluator
+      import_tasks: ./tasks/deploy-rs-evaluator.yml
       vars:
-        - image: ghcr.io/rannasta-suomeen/rannasta-suomeen-rs:release
-        - service_name: docker.rs-frontend
-        - port: 3030
+        - image: ghcr.io/rannasta-suomeen/rannasta-suomeen-evaluator:release
+        - service_name: docker.rs-evaluator
+        - docker_name: rs-evaluator
+        - port: 3040
+      tags:
+        - evaluator
+        - init
+        - never
 
-        # sha256:af79128118708aa80e6b4d2a0c3779a7f3ee01bbdaa4ae7f1a3f16ebab6729f9
+    - name: Deploy rsm
+      import_tasks: ./tasks/deploy-rsm.yml
+      vars:
+        - image: ghcr.io/rannasta-suomeen/rsm-server:release
+        - service_name: docker.rsm-server
+        - docker_name: rsm-server
+        - port: 
+      tags:
+        - rsm
+        - init
+        - never
+
+    - name: Deploy Superalko parser
+      import_tasks: ./tasks/deploy-s-parser.yml
+      vars:
+        - image: ghcr.io/rannasta-suomeen/superalko-parser:release
+        - service_name: docker.s-parser
+        - docker_name: s-parser
+      tags:
+        - s-parser
+        - init
+        - never
+
+    - name: Deploy Alko parser
+      import_tasks: ./tasks/deploy-a-parser.yml
+      vars:
+        - image: ghcr.io/rannasta-suomeen/alko-parser:release
+        - service_name: docker.a-parser
+        - docker_name: a-parser
+      tags:
+        - a-parser
+        - init
+        - never
+
+    - name: Deploy cdn
+      import_tasks: ./tasks/deploy-cdn.yml
+      vars:
+        - image: ghcr.io/rannasta-suomeen/rannasta-suomeen-cdn:release
+        - service_name: docker.rs-cdn-server
+        - docker_name: rs-cdn
+        - port: 3050
+      tags:
+        - cdn
+        - init
+        - never
+  
+        
+
